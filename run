@@ -1,3 +1,8 @@
 #!/bin/bash
+
+# Clean and compile the project quietly
 mvn clean compile -q
-mvn exec:java -Dexec.mainClass="de.schlueter.App" -q
+
+# Execute the main class and pass all script arguments to it properly quoted
+mvn exec:java -Dexec.mainClass="de.schlueter.App" -Dexec.args="$*" -q
+
