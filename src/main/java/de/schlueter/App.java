@@ -1,5 +1,6 @@
 package de.schlueter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import picocli.CommandLine;
@@ -18,21 +19,36 @@ public class App implements Runnable {
 
     @Override
     public void run() {
-        // parse host for , separated values and put them in a list
-        List<String> hosts = Arrays.asList(host.split(","));
+        List<String> hostSplitter = new ArrayList<>(Arrays.asList(host.split(",")));
 
-        hosts.stream().forEach(System.out::println);
+        List<String> hostsArray = new ArrayList<>();
 
-        if (hosts.get(0) != null && port != 0) {
-            TCPConnector connector = new TCPConnector(host, port);
-            if (connector.connect()) {
-                System.out.println("Connection to " + host + ":" + port + " successful");
-            } else {
-                System.out.println("Connection to " + host + ":" + port + " failed");
+        for (String internHost : hostSplitter) {
+            if (internHost.contains("*")) {
+                String hostPrefix = internHost.substring(0, internHost.indexOf("*"));
+                for (int i = 0; i < 256; i++) {
+                    String host = hostPrefix + i;
+                    hostsArray.add(host);
+                }
+            }else{
+                hostsArray.add(internHost);
             }
+            
         }
 
-        portScanner.simplePortScanning(hosts, port);
-        portScanner.multiThreadedPortScanning(hosts, port);
+        // hostsArray.stream().forEach(System.out::println);
+
+        // TODO: Implement the connection to a single host and port
+        // if (hostsArray.get(0) != null && port != 0) {
+        //     TCPConnector connector = new TCPConnector();
+        //     if (connector.connect()) {
+        //         System.out.println("Connection to " + host + ":" + port + " successful");
+        //     } else {
+        //         System.out.println("Connection to " + host + ":" + port + " failed");
+        //     }
+        // }
+
+        portScanner.simplePortScanning(hostsArray, port);
+        // portScanner.multiThreadedPortScanning(hostsArray, port);
     }
 }

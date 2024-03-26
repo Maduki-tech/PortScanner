@@ -5,7 +5,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -17,14 +19,6 @@ public class TCPConnector {
     private String host;
     private int port;
 
-    TCPConnector(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
-    TCPConnector(String host) {
-        this.host = host;
-    }
-
     public boolean connect() {
         try {
             Socket socket = new Socket(host, port);
@@ -35,49 +29,57 @@ public class TCPConnector {
         }
     }
 
-    public List<Integer> scanNetwork() {
+    // TODO: Finding a faster methdoe
+    // NOTE: If there cannot be made a connection to one IP the skip filling in the ports for that ip and skip to the next ip
+    public Map<String, Integer> scanNetwork(List<String> hosts, int port) {
         int firstPort = 1;
         int lastPort = 65535;
-        List<Integer> openPorts = new ArrayList<>();
-        for (int port = firstPort; port <= lastPort; port++) {
-            try {
-                Socket socket = new Socket(host, port);
-                socket.close();
-                openPorts.add(port);
-            } catch (IOException e) {
-                // Do nothing
+        Map<String, Integer> openPorts = new HashMap<>();
+
+        for (String host : hosts) {
+            for (int i = firstPort; i <= lastPort; i++) {
+                try {
+                    Socket socket = new Socket();
+                    socket.connect(new InetSocketAddress(host, i), 200); // Set a timeout
+                    socket.close();
+                    openPorts.put(host, i);
+                } catch (IOException e) {
+                    // Do nothing
+                }
             }
         }
         return openPorts;
     }
-    public List<Integer> scanNetworkMulti() {
-        final int firstPort = 1;
-        final int lastPort = 65535;
-        List<Integer> openPorts =
-            Collections.synchronizedList(new ArrayList<>());          // Make the list thread-safe
-        ExecutorService executor = Executors.newFixedThreadPool(100); // Adjust the thread pool size
-
-        for (int port = firstPort; port <= lastPort; port++) {
-            final int finalPort = port;
-            executor.submit(() -> {
-                try {
-                    Socket socket = new Socket();
-                    socket.connect(new InetSocketAddress(host, finalPort), 200); // Set a timeout
-                    socket.close();
-                    synchronized (openPorts) {
-                        openPorts.add(finalPort);
-                    }
-                } catch (IOException e) {
-                    // Do nothing
-                }
-            });
-        }
-        executor.shutdown();
-        try {
-            executor.awaitTermination(1, TimeUnit.HOURS); // Wait with a reasonable timeout
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // Handle interruption properly
-        }
-        return new ArrayList<>(openPorts); // Return a copy to avoid concurrent modification issues
-    }
+    // TODO: Improve the methode
+    // public Map< String, Integer> scanNetworkMulti(List<String> hosts, int port) {
+    //     final int firstPort = 1;
+    //     final int lastPort = 65535;
+    //     Map< String, Integer> openPorts = new HashMap<>();
+    //     List<Integer> openPortsPerIP =
+    //         Collections.synchronizedList(new ArrayList<>());          // Make the list thread-safe
+    //     ExecutorService executor = Executors.newFixedThreadPool(100); // Adjust the thread pool size
+    //
+    //     for (int i = firstPort; i <= lastPort; i++) {
+    //         final int finalPort = i;
+    //         executor.submit(() -> {
+    //             try {
+    //                 Socket socket = new Socket();
+    //                 socket.connect(new InetSocketAddress(host, finalPort), 200); // Set a timeout
+    //                 socket.close();
+    //                 synchronized (openPortsPerIP) {
+    //                     openPortsPerIP.add(finalPort);
+    //                 }
+    //             } catch (IOException e) {
+    //                 // Do nothing
+    //             }
+    //         });
+    //     }
+    //     executor.shutdown();
+    //     try {
+    //         executor.awaitTermination(1, TimeUnit.HOURS); // Wait with a reasonable timeout
+    //     } catch (InterruptedException e) {
+    //         Thread.currentThread().interrupt(); // Handle interruption properly
+    //     }
+    //     return new ArrayList<>(openPortsPerIP); // Return a copy to avoid concurrent modification issues
+    // }
 }

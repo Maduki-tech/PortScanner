@@ -4,5 +4,8 @@
 mvn clean compile -q
 
 # Execute the main class and pass all script arguments to it properly quoted
-mvn exec:java -Dexec.mainClass="de.schlueter.App" -Dexec.args="$*" -q
+# mvn exec:java -Dexec.mainClass="de.schlueter.App" -Dexec.args="$*" -q
+
+mvn exec:java -Dexec.mainClass="de.schlueter.App" -Dexec.args="$*" -Dlogback.configurationFile=src/main/java/resources/log4j.properties -q
+
 

@@ -31,8 +31,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
     <!-- Junit Testing -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.10.2</version>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.10.1</version>
+      <!-- can be omitted when using the BOM -->
       <scope>test</scope>
     </dependency>
     <!-- Picocli -->
@@ -45,7 +46,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>1.18.30</version>
-      <scope>compile</scope>
     </dependency>
     <!-- SLF4J API dependency -->
     <dependency>
