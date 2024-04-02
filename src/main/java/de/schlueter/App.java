@@ -30,25 +30,10 @@ public class App implements Runnable {
                     String host = hostPrefix + i;
                     hostsArray.add(host);
                 }
-            }else{
+            } else {
                 hostsArray.add(internHost);
             }
-            
         }
-
-        // hostsArray.stream().forEach(System.out::println);
-
-        // TODO: Implement the connection to a single host and port
-        // if (hostsArray.get(0) != null && port != 0) {
-        //     TCPConnector connector = new TCPConnector();
-        //     if (connector.connect()) {
-        //         System.out.println("Connection to " + host + ":" + port + " successful");
-        //     } else {
-        //         System.out.println("Connection to " + host + ":" + port + " failed");
-        //     }
-        // }
-
         portScanner.simplePortScanning(hostsArray, port);
-        // portScanner.multiThreadedPortScanning(hostsArray, port);
     }
 }
